@@ -21,8 +21,15 @@ def handle_client(client_socket, client_address):
                 # Check send_to is in client_id_map
                 if message['send_to'] in client_id_map:
                     client_id_map[message['send_to']].send(json.dumps(send_message).encode())
+                    success_message = {'mode': 'notification', 'message': 'Message sent to ' + message['send_to']}
+                    client_socket.send(json.dumps(success_message).encode())
+
                 else:
+                    error_message = {'mode': 'notification', 'message': 'Client ' + message['send_to'] + ' not found'}
+                    client_socket.send(json.dumps(error_message).encode())
                     print(f"Client {message['send_to']} not found")
+
+        
 
 
             if message['mode'] == 'auth_pub':
@@ -44,6 +51,12 @@ def accept_clients():
         client_socket, client_address = server_socket.accept()
         # Receive the client's ID
         client_id = client_socket.recv(1024).decode()
+        # Check if the client ID is already in use
+        if client_id in client_id_map:
+            print(f"Client {client_id} already connected")
+            client_socket.send("Client ID already in use".encode())
+            client_socket.close()
+            continue
         print(f"Client {client_id} connected")
         # Add the client to the list of connected clients
         client_id_map[client_id] = client_socket
@@ -67,5 +80,4 @@ print("Server started. Listening for connections...")
 accept_thread = threading.Thread(target=accept_clients)
 accept_thread.start()
 
-#
 

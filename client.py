@@ -9,8 +9,11 @@ def receive_messages():
         if not message:
             break
         message = json.loads(message.decode())
+        # print(message)
         if message['mode'] == 'message':
             print(f"Received message from {message['id']}: {message['message']}")
+        if message['mode'] == 'notification':
+            print(f"Notification: {message['message']}")
 
 # Connect to the server
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
