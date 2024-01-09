@@ -6,6 +6,8 @@ import sys
 
 client_id_map = {}
 client_socket_map = {}
+pubkey_map = {}
+
 def handle_client(client_socket, client_address):
 
     while True:
@@ -30,11 +32,28 @@ def handle_client(client_socket, client_address):
                     print(f"Client {message['send_to']} not found")
 
         
-
-
             if message['mode'] == 'auth_pub':
-                print(f"Received public key from {message['id']}")
-                # Send the message to the recipient client
+                if message['pubkey']:
+                    client_id = client_socket_map[client_socket]
+                    pubkey_map[client_id] = message['pubkey']
+                    print(f"Client {client_id} sent public key")
+                    success_message = {'mode': 'notification', 'message': 'Received public key'}
+                    client_socket.send(json.dumps(success_message).encode())
+                else:
+                    error_message = {'mode': 'notification', 'message': 'No public key received'}
+                    client_socket.send(json.dumps(error_message).encode())
+            
+            if message['mode'] == 'get_pubkey':
+                if message['id'] in pubkey_map:
+                    pubkey = pubkey_map[message['id']]
+                    print(f"Client {client_socket_map[client_socket]} requested public key of {message['id']}")
+                    success_message = {'mode': 'get_pubkey', 'id': message['id'], 'pubkey': pubkey, 'status': 'success'}
+                    client_socket.send(json.dumps(success_message).encode())
+                else:
+                    error_message = {'mode': 'get_pubkey', 'id': message['id'], 'status': 'error'}
+                    client_socket.send(json.dumps(error_message).encode())
+                    
+                
         except Exception:
             print(f"Client {client_socket_map[client_socket]} disconnected")
             break
