@@ -7,12 +7,13 @@ import sys
 client_id_map = {}
 client_socket_map = {}
 pubkey_map = {}
+MAX_SIZE = 1024
 
 def handle_client(client_socket, client_address):
 
     while True:
         try:
-            message = client_socket.recv(1024)
+            message = client_socket.recv(MAX_SIZE)
             if not message:
                 break
             message = json.loads(message.decode())
@@ -69,7 +70,7 @@ def accept_clients():
     while True:
         client_socket, client_address = server_socket.accept()
         # Receive the client's ID
-        client_id = client_socket.recv(1024).decode()
+        client_id = client_socket.recv(MAX_SIZE).decode()
         # Check if the client ID is already in use
         if client_id in client_id_map:
             print(f"Client {client_id} already connected")
@@ -77,6 +78,8 @@ def accept_clients():
             client_socket.close()
             continue
         print(f"Client {client_id} connected")
+        # Send that the client has connected successfully
+        client_socket.send("Connected successfully".encode())
         # Add the client to the list of connected clients
         client_id_map[client_id] = client_socket
         client_socket_map[client_socket] = client_id
