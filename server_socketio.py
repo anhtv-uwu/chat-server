@@ -59,5 +59,10 @@ def get_pubkey(sid, data):
     else:
         sio.emit('get_pubkey', {'id': data['id'], 'status': 'error'}, room=sid)
 
+@sio.event
+def get_useronline(sid):
+    print(f"Client {sid} requested online users")
+    sio.emit('get_useronline', {'users': list(client_id_map.values()), 'status': 'success'}, room=sid)
+
 if __name__ == '__main__':
     eventlet.wsgi.server(eventlet.listen(('localhost', 8089)), app)

@@ -10,6 +10,7 @@ my_privkey, my_pubkey = libcrypto.generate_keys()
 AUTH = False
 USERNAME = None
 
+UserOnline = []
 pubkey_map = {}
 
 sio = socketio.Client()
@@ -50,6 +51,12 @@ def get_pubkey(data):
     if data['status'] == 'success':
         pubkey_map[data['id']] = data['pubkey']
 
+@sio.event
+def get_useronline(data):
+    global UserOnline
+    UserOnline = data
+    print(UserOnline)
+
 def send_message(client_id, message):
     # Request pubkey
     if client_id not in pubkey_map:
@@ -64,6 +71,9 @@ def send_message(client_id, message):
     encrypted_message = libcrypto.encrypt(message.encode(), pubkey)
     # Send message
     sio.emit('message', {'send_to': client_id, 'message': encrypted_message})
+
+def get_useronline():
+    sio.emit('get_useronline')
 
     
 
