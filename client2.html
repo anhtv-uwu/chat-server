@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Simple Chat Interface</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <style>
+    .user-list {
+      float: left;
+      width: 30%;
+      height: 500px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+
+    .chat-box {
+      float: right;
+      width: 70%;
+      height: 500px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="user-list">
+          <ul class="list-group">
+            <li class="list-group-item">User 1</li>
+            <li class="list-group-item">User 2</li>
+            <li class="list-group-item">User 3</li>
+            <li class="list-group-item">User 4</li>
+            <li class="list-group-item">User 5</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-md-8">
+        <div class="chat-box">
+          <h2>Welcome to the chat!</h2>
+          <p>Please select a user from the list on the left to start chatting.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
