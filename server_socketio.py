@@ -3,8 +3,11 @@ import socketio
 import eventlet
 import json
 
-sio = socketio.Server()
+sio = socketio.Server(cors_allowed_origins='*')
 app = socketio.WSGIApp(sio)
+
+# Allow CORS
+
 
 client_id_map = {}
 pubkey_map = {}
@@ -54,14 +57,14 @@ def auth_pub(sid, data):
 def get_pubkey(sid, data):
     if data['id'] in pubkey_map:
         pubkey = pubkey_map[data['id']]
-        print(f"Client {sid} requested public key of {data['id']}")
+        # print(f"Client {sid} requested public key of {data['id']}")
         sio.emit('get_pubkey', {'id': data['id'], 'pubkey': pubkey, 'status': 'success'}, room=sid)
     else:
         sio.emit('get_pubkey', {'id': data['id'], 'status': 'error'}, room=sid)
 
 @sio.event
 def get_useronline(sid):
-    print(f"Client {sid} requested online users")
+    # print(f"Client {sid} requested online users")
     sio.emit('get_useronline', {'users': list(client_id_map.values()), 'status': 'success'}, room=sid)
 
 if __name__ == '__main__':

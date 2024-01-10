@@ -76,7 +76,6 @@ def get_useronline():
     sio.emit('get_useronline')
 
     
-
 if __name__ == '__main__':
     USERNAME = input("Enter your username: ")
     sio.connect('http://localhost:8089')

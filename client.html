@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Socket.IO Client</title>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <style>
+        #userList {
+            width: 200px;
+            float: left;
+        }
+        #chat {
+            margin-left: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div id="userList"></div>
+    <div id="chat">
+        <h1>Chat</h1>
+        <ul id="messages"></ul>
+        <form id="messageForm">
+            <input id="message" type="text" placeholder="Message">
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <script>
+        var socket = io('http://localhost:8089');
+        var pubkey_map = {};
+        var currentRecipient = null;
+
+        socket.on('connect', function() {
+            console.log('Connected to server');
+            var username = prompt("Enter your username: ");
+            socket.emit('auth_userid', {'id': username});
+        });
+
+        socket.on('disconnect', function() {
+            console.log('Disconnected from server');
+        });
+
+        socket.on('auth_userid', function(data) {
+            if (data['status']) {
+                console.log(data['message']);
+            } else {
+                console.log(data['message']);
+                socket.disconnect();
+            }
+        });
+
+        socket.on('message', function(data) {
+            var message = decrypt(data['message'], my_privkey);
+            var li = document.createElement("li");
+            li.textContent = `Received message from ${data['id']}: ${message}`;
+            document.getElementById('messages').appendChild(li);
+        });
+
+        socket.on('notification', function(data) {
+            console.log(`Notification: ${data['message']}`);
+        });
+
+        socket.on('get_pubkey', function(data) {
+            if (data['status'] == 'success') {
+                pubkey_map[data['id']] = data['pubkey'];
+            }
+        });
+
+        socket.on('get_useronline', function(data) {
+            var userList = document.getElementById('userList');
+            // Print data to console
+            console.log(data);
+            users = data['users'];
+            userList.innerHTML = '';
+            for (var i = 0; i < users.length; i++) {
+                var li = document.createElement("li");
+                li.textContent = users[i];
+                li.addEventListener('click', function(e) {
+                    currentRecipient = e.target.textContent;
+                    console.log(`Current recipient: ${currentRecipient}`);
+                });
+                userList.appendChild(li);
+            }
+        });
+
+        document.getElementById('messageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var message = document.getElementById('message').value;
+            send_message(currentRecipient, message);
+        });
+
+        function send_message(client_id, message) {
+            // if (client_id not in pubkey_map) {
+            //     console.log("Getting public key");
+            //     socket.emit('get_pubkey', {'id': client_id});
+            // }
+            if (!(client_id in pubkey_map)) {
+                console.log("Getting public key");
+                socket.emit('get_pubkey', {'id': client_id});
+            }
+            var pubkey = pubkey_map[client_id];
+            var encrypted_message = encrypt(message, pubkey);
+            socket.emit('message', {'send_to': client_id, 'message': encrypted_message});
+        }
+
+        function get_useronline() {
+            socket.emit('get_useronline');
+        }
+
+        setInterval(get_useronline, 5000);
+    </script>
+</body>
+</html>
