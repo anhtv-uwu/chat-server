@@ -35,7 +35,11 @@ def auth_userid(data):
         AUTH = True
     else:
         print(data['message'])
-        sio.disconnect()
+        global USERNAME
+        USERNAME = input("Enter your username: ")
+        sio.emit('auth_userid', {'id': USERNAME})
+
+        
 
 @sio.event
 def message(data):
@@ -79,8 +83,11 @@ def get_useronline():
 if __name__ == '__main__':
     USERNAME = input("Enter your username: ")
     sio.connect('http://localhost:8089')
+
+    while not AUTH:
+        time.sleep(0.1)
     
-    while True:
+    while AUTH:
         recipient_id = input("Enter the recipient's ID: ")
         message = input("Enter your message: ")
         send_message(recipient_id, message)

@@ -1,0 +1,251 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&display=swap');
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-decoration: none;
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+body{
+  margin: 10px;
+  display: inline-block;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  padding: 0 10px;
+}
+
+.h2{
+  position: absolute;
+  text-align: center;
+  padding: auto;
+  font-size: 200%;
+}
+/* List user */
+.list-chat{
+  padding: auto;
+  float: left;
+  width: 30%;
+  height: 710px;
+  position: relative;
+}
+.list-chat header{
+  height: 80px;
+  text-align: center;
+  padding: 16px;
+  background-color: #6a93b9;
+  color: white;
+  font-size: 150%;
+  border-radius: 18px 0 0 0; 
+}
+.box{
+  position: relative;
+  width: 100%;
+  height: 630px;
+  overflow-y: auto;
+  background: #f1f1f1;
+  margin: 0px;
+  border-radius: 0 0 0 18px;
+}
+.list-user{
+  height: 88%;
+  overflow-y: auto;
+}
+.user{
+  display:flex;
+  align-items: center;
+  padding: 18px 10px;
+  transition: 0.5s;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.user img{
+  height: 45px;
+  width: 45px;
+  margin: 0 15px;
+}
+.typing-id{
+  padding: 0px 30px;
+  display: flex;
+  width: 95%;
+  justify-content: space-between;
+  position: absolute;
+  bottom: 0;
+}
+.typing-id{
+  align-items: center;
+}
+.typing-id input{
+  position: relative;
+  margin-left: 30px;
+  margin-right: 8px;
+  margin-bottom: 18px;
+  height: 40px;
+  width: 300px;
+  font-size: 16px;
+  padding: 0 15px;
+  border: 2px solid #e6e6e6;
+  outline-color: rgb(182, 195, 240);
+  border-radius: 20px;
+  
+}
+.btn1{
+  color: #fff;
+  width: 35px;
+  height: 35px;
+  margin-bottom: 20px;
+  border: none;
+  background: #333;
+  font-size: 16px;
+  opacity: 0.7;
+  border-radius: 50%;
+}
+.user:hover,
+.user:active{
+  background-color: #e0dede;
+}
+/* Chat Area */
+.chat-area{
+  float: left;
+  margin-bottom: 10px;
+  width: 70%;
+  height: 710px;
+
+}
+.chat-area header{
+  height: 80px;
+  display: flex;
+  align-items: center;
+  padding: 18px 30px;
+  border: 1px solid #e6e6e6;
+  border-radius: 0 18px 0 0;
+}
+
+.chat-area header img{
+  height: 45px;
+  width: 45px;
+  margin: 0 15px;
+}
+
+.chat-area header .details span{
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.chat-box{
+  position: relative;
+  overflow-y: auto;
+  height: 630px;
+  padding: 0px 0px 20px 30px;
+  background: #ecebeb;
+  border-radius: 0 0 18px 0;
+  /* Tempora fix VA */
+  width: 1000px;
+}
+
+.chat-box .text{
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  width: 100%;
+  text-align: center;
+  transform: translate(-50%, -50%); 
+}
+.c{
+  height: 90%;
+  overflow-y: auto;
+  margin: 0;
+}
+.chat-box .chat{
+  margin: 15px 0;
+}
+.chat-box .chat p{
+  word-wrap: break-word;
+  padding: 8px 16px;
+  box-shadow: 0 0 32px rgb(0 0 0 / 10%),
+              0 16px 16px -16px rgb(0 0 0 / 10%);
+}
+
+.chat-box .outgoing{
+  display: flex;
+  float: right; 
+  align-items: flex-end;
+}
+
+.chat-box .outgoing .details{
+  margin-left: 20%;
+}
+
+.chat {
+  display: flex;
+}
+
+.chat.outgoing {
+  align-self: flex-end;
+}
+
+.chat.incoming {
+  align-self: flex-start;  
+  float: left;
+  clear: both; /* Add this line */
+}
+
+.outgoing .details p {
+  background: #727be6;
+  color: #fff;
+  border-radius: 18px 18px 0 18px;
+}
+
+.chat-box .incoming{
+  display: flex;
+  align-items: flex-end;
+  clear: both; /* Add this line */
+}
+
+.chat-box .incoming .details{
+  margin-right: 30%;
+  margin-left: 0px;
+}
+
+.incoming .details p {
+  background: #fff;
+  color: #333;
+  border-radius: 18px 18px 18px 0;
+}
+
+.typing-area{
+  padding: 10px 30px;
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  bottom: 5px;
+}
+.typing-area input{
+  margin-left: 30px;
+  height: 50px;
+  width: 820px;
+  font-size: 16px;
+  padding: 0 13px;
+  border: 1px solid #e6e6e6;
+  outline-color: rgb(182, 195, 240);
+  border-radius: 20px;
+}
+.btn2{
+  width: 55px;
+  border: none;
+  background-color: #ecebeb;
+  font-size: 16px;
+  border-radius: 50%;
+}
+.btn i{
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0.7;
+}
+.btn i:hover,
+.btn i:active{
+  opacity: 1;
+  transform: scale(1.3);
+}

@@ -1,0 +1,315 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://kit.fontawesome.com/1beff136e1.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/forge/1.3.1/forge.min.js"></script>
+  <script src="libcrypto.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+</head>
+
+<body>
+  <div class="wrapper">
+    <section class="list-chat">
+      <header>
+        <h2>List Chat</h2>
+      </header>
+      <body>
+        <div class="box" id="box">
+          <div class="list-user" id="listuser">
+            <!-- <div class="user">
+                <img src="https://vnn-imgs-a1.vgcloud.vn/image1.ictnews.vn/_Files/2020/02/25/trend-avatar-6.jpg"
+                    alt="photo">
+                <div class="details">
+                    <div>id</div>
+                </div>
+            </div> -->
+          </div>
+          <form action="#" class="typing-id">
+            <input type="text" name="id" placeholder="Nhập id">
+            <button class="btn btn1">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </form>
+        </div>
+      </body>
+    </section>
+    <section class="chat-area">
+      <header>
+        <img src="https://vnn-imgs-a1.vgcloud.vn/image1.ictnews.vn/_Files/2020/02/25/trend-avatar-6.jpg" alt="photo">
+        <div class="details" id="header-username">
+          <div>Select user to chat</div>
+        </div>
+      </header>
+      <div class="chat-box">
+        <div class="c" id="chat-area">
+          <!-- <div class="chat outgoing">
+            <div class="details">
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolore, omnis nostrum voluptatem distinctio
+                    quis, labore blanditiis magni unde expedita minus beatae iure corrupti maiores perferendis nobis dicta,
+                    aliquam officiis necessitatibus.</p>
+            </div>
+          </div>
+          <div class="chat incoming">
+            <div class="details">
+              <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Amet sit pariatur, magnam vel accusamus
+                temporibus officiis in. Cupiditate neque blanditiis hic veniam quia, fugit quidem quo vel suscipit!
+                Similique, quo!</p>
+            </div>
+          </div> -->
+          
+        </div>
+        <form action="#" class="typing-area">
+          <input type="text" name="message" placeholder="Nhập nội dung ở đây...">
+          <button class="btn btn2" id="send-mess-button">
+            <i class="fa-brands fa-telegram fa-2xl" style="color: #333;"></i>
+          </button>
+        </form>
+    </section>
+  </div>
+  <div id="toast-container" aria-live="polite" aria-atomic="true" style="position: fixed; bottom: 0; right: 0; min-height: 200px;"></div>
+ 
+  <script>
+        function show_notification(message) {
+            // Create random id 
+            let id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            var toastHTML = `
+            <div id="${id}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
+                <div class="toast-header">
+                    <strong class="mr-auto">Notification</strong>
+                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="toast-body">
+                    ${message}
+                </div>
+            </div>`;
+            document.getElementById('toast-container').innerHTML += toastHTML;
+            $('.toast').toast('show');
+           
+            // Button trigger remove element
+            document.getElementById(id).querySelector('.close').addEventListener('click', function(e){
+                e.preventDefault();
+                document.getElementById(id).remove();
+            });
+        } 
+        var socket = io('http://localhost:8089');
+        var pubkey_map = {};
+        var currentRecipient = null;
+
+        // add listener for button
+        document.getElementById('send-mess-button').addEventListener('click', function(e){
+            e.preventDefault();
+            let message = document.querySelector('input[name="message"]').value;
+            if (message == '') {
+                return;
+            }
+            send_message(currentRecipient, message);
+            display_messages(currentRecipient);
+            document.querySelector('input[name="message"]').value = '';
+        });
+
+        // add listener when click div class user
+        document.getElementById('listuser').addEventListener('click', function(e){
+            e.preventDefault();
+            let userid = e.target.closest('.user').querySelector('.details div').innerHTML;
+            currentRecipient = userid;
+            display_messages(userid);
+        });
+
+        function create_user_list(username){
+            // <div class="user">
+            //     <img src="https://vnn-imgs-a1.vgcloud.vn/image1.ictnews.vn/_Files/2020/02/25/trend-avatar-6.jpg"
+            //     alt="photo">
+            //   <div class="details">
+            //     <div>id</div>
+            //   </div>
+            // </div>
+            let list_user = document.getElementById('listuser');
+            let user = document.createElement('div');
+            user.classList.add('user');
+            let img = document.createElement('img');
+            img.src = "https://vnn-imgs-a1.vgcloud.vn/image1.ictnews.vn/_Files/2020/02/25/trend-avatar-6.jpg";
+            img.alt = "photo";
+            let details = document.createElement('div');
+            details.classList.add('details');
+            let id = document.createElement('div');
+            id.innerHTML = username;
+            details.appendChild(id);
+            user.appendChild(img);
+            user.appendChild(details);
+            list_user.appendChild(user);
+        }
+
+        function create_message(message, is_outgoing){
+            // <div class="chat outgoing">
+            //     <div class="details">
+            //       <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolore, omnis nostrum voluptatem distinctio
+            //         quis, labore blanditiis magni unde expedita minus beatae iure corrupti maiores perferendis nobis dicta,
+            //         aliquam officiis necessitatibus.</p>
+            //     </div>
+            //   </div>
+            let chat_area = document.getElementById('chat-area');
+            let chat = document.createElement('div');
+            chat.classList.add('chat');
+            if (is_outgoing) {
+                chat.classList.add('outgoing');
+            } else {
+                chat.classList.add('incoming');
+            }
+            let details = document.createElement('div');
+            details.classList.add('details');
+            let p = document.createElement('p');
+            p.innerHTML = message;
+            details.appendChild(p);
+            chat.appendChild(details);
+            chat_area.appendChild(chat);
+        }
+
+        function add_message_to_storage(userid, message, is_outgoing){
+            // Add message to local storage
+            // If userid not in local storage, create new
+            // If userid in local storage, append message
+            let messages = JSON.parse(localStorage.getItem('messages'));
+            if (messages == null) {
+                messages = {};
+            }
+            if (!(userid in messages)) {
+                messages[userid] = [];
+            }
+            messages[userid].push({'message': message, 'is_outgoing': is_outgoing});
+            localStorage.setItem('messages', JSON.stringify(messages));
+        }
+
+        function get_message_from_userid(userid){
+            // Get message from local storage
+            // If userid not in local storage, return empty string
+            // If userid in local storage, return message as list json
+            let messages = JSON.parse(localStorage.getItem('messages'));
+            if (messages == null) {
+                return [];
+            }
+            if (!(userid in messages)) {
+                return [];
+            }
+            return messages[userid];
+        }
+
+        function display_messages(userid){
+            // Display messages from userid
+            // Get messages from local storage
+            // If userid not in local storage, return empty string
+            // If userid in local storage, return message as list json
+
+            // Change username
+            document.getElementById('header-username').querySelector('div').innerHTML = userid;
+            
+            
+            // Clear old message
+            let chat_area = document.getElementById('chat-area');
+            chat_area.innerHTML = '';
+            let messages = get_message_from_userid(userid);
+            for (let i = 0; i < messages.length; i++) {
+                create_message(messages[i]['message'], messages[i]['is_outgoing']);
+            }
+
+        }
+        
+        socket.on('connect', function() {
+            console.log('Connected to server');
+            var username = prompt("Enter your username: ");
+            socket.emit('auth_userid', {'id': username});
+            // Auth pubkey
+            socket.emit('auth_pub', {'pubkey': pubkey});
+        });
+
+        socket.on('disconnect', function() {
+            console.log('Disconnected from server');
+        });
+
+        socket.on('auth_userid', function(data) {
+            if (data['status']) {
+                console.log(data['message']);
+            } else {
+                console.log(data['message']);
+                socket.disconnect();
+            }
+        });
+
+        socket.on('message', function(data) {
+            var message = decrypt(data['message'], privkey);
+            add_message_to_storage(data['id'], message, false);
+            if (data['id'] == currentRecipient) {
+                create_message(message, false);
+            }
+            show_notification(`New message from ${data['id']}`);
+        });
+
+        socket.on('notification', function(data) {
+            console.log(`Notification: ${data['message']}`);
+            show_notification(data['message']);
+        });
+
+        socket.on('get_pubkey', function(data) {
+            if (data['status'] == 'success') {
+                pubkey_map[data['id']] = data['pubkey'];
+            }
+        });
+
+        socket.on("get_all_pubkey", function(data) {
+            if (data['status'] == 'success') {
+                pubkey_map = data['pubkey_map'];
+            }
+            console.log(pubkey_map);
+            console.log("Get all pubkey");
+        });
+
+        socket.on('get_useronline', function(data) {
+            // Print data to console
+            console.log(data);
+            users = data['users'];
+            // Clear everything in box
+            let list_user = document.getElementById('listuser');
+            list_user.innerHTML = '';
+            for (let i = 0; i < users.length; i++) {
+                create_user_list(users[i]);
+            }
+
+        });
+
+        function send_message(client_id, message) {
+            // if (client_id not in pubkey_map) {
+            //     console.log("Getting public key");
+            //     socket.emit('get_pubkey', {'id': client_id});
+            // }
+            if (!(client_id in pubkey_map)) {
+                console.log("Getting public key");
+                socket.emit('get_pubkey', {'id': client_id});
+            }
+            // // While loop when pubkey_map[client_id] is undefined
+            // while (pubkey_map[client_id] == undefined) {
+            //     console.log("Waiting for public key");
+            // }
+            let another_pubkey = pubkey_map[client_id];
+            var encrypted_message = encrypt(message, another_pubkey);
+            socket.emit('message', {'send_to': client_id, 'message': encrypted_message});
+            add_message_to_storage(client_id, message, true);
+        }
+
+        function get_useronline() {
+            socket.emit('get_useronline');
+            socket.emit("get_all_pubkey");
+        }
+        
+
+    setInterval(get_useronline, 5000);
+    </script>
+</body>
+</html>
