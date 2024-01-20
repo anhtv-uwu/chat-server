@@ -136,7 +136,7 @@ body{
 
 .chat-box{
   position: relative;
-  overflow-y: auto;
+  /* overflow-y: auto; */
   height: 630px;
   padding: 0px 0px 20px 30px;
   background: #ecebeb;
@@ -171,7 +171,9 @@ body{
 .chat-box .outgoing{
   display: flex;
   float: right; 
+  margin-right: 3%;
   align-items: flex-end;
+  clear: both; /* Add this line */
 }
 
 .chat-box .outgoing .details{
@@ -184,11 +186,13 @@ body{
 
 .chat.outgoing {
   align-self: flex-end;
+  clear: both; /* Add this line */
 }
 
 .chat.incoming {
   align-self: flex-start;  
   float: left;
+  margin-left:3%;
   clear: both; /* Add this line */
 }
 
