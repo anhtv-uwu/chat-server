@@ -31,12 +31,10 @@
                 </div>
             </div> -->
           </div>
-          <form action="#" class="typing-id">
-            <input type="text" name="id" placeholder="Nhập id">
-            <button class="btn btn1">
-              <i class="fa-solid fa-plus"></i>
-            </button>
-          </form>
+          <!-- Create disconect button and center it -->
+          <div>
+            <button class="btn btn-danger" style="margin: 0 auto; display: block;" onclick="localStorage.removeItem('username'); location.reload();">Disconnect</button>
+          </div>
         </div>
       </body>
     </section>
@@ -49,7 +47,7 @@
       </header>
       <div class="chat-box">
         <div class="c" id="chat-area">
-          <div class="chat outgoing">
+          <!-- <div class="chat outgoing">
             <div class="details">
                 <p>Hi</p>
             </div>
@@ -101,7 +99,7 @@
             <div class="details">
               <p>Hello</p>
             </div>
-          </div>
+          </div> -->
           
         </div>
         <form action="#" class="typing-area">
@@ -263,7 +261,14 @@
         
         socket.on('connect', function() {
             console.log('Connected to server');
-            var username = prompt("Enter your username: ");
+            if (localStorage.getItem('username') != null) {
+                var username = localStorage.getItem('username');
+                
+            }
+            else{
+                var username = prompt("Enter your username: ");
+                localStorage.setItem('username', username);
+            }
             socket.emit('auth_userid', {'id': username});
             // Auth pubkey
             socket.emit('auth_pub', {'pubkey': pubkey});
@@ -288,7 +293,9 @@
             if (data['id'] == currentRecipient) {
                 create_message(message, false);
             }
-            show_notification(`New message from ${data['id']}`);
+            if (data['id'] != currentRecipient) {
+                show_notification(`New message from ${data['id']}`);
+            }
         });
 
         socket.on('notification', function(data) {
