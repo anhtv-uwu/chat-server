@@ -2,3 +2,9 @@ pycryptodome
 python-socketio
 python-socketio[client]
 eventlet
+Flask
+Flask-SQLAlchemy
+pymysql
+cryptography
+flask-socketio
+PyJWT

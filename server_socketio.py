@@ -2,6 +2,9 @@
 import socketio
 import eventlet
 import json
+import jwt
+
+secret = "thisissecret"
 
 sio = socketio.Server(cors_allowed_origins='*')
 app = socketio.WSGIApp(sio)
@@ -12,6 +15,8 @@ app = socketio.WSGIApp(sio)
 client_id_map = {}
 pubkey_map = {}
 sid_map = {}
+
+list_user = []
 
 
 @sio.event
@@ -41,15 +46,28 @@ def message(sid, data):
 @sio.event
 def auth_userid(sid, data):
     # print(f"{data['id']} send auth request")
-    if data['id'] not in sid_map:
-        client_id_map[sid] = data['id']
-        sid_map[data['id']] = sid
-        # print(f"Client {data['id']} connected")
-        sio.emit('auth_userid', {'status': True, 'message': 'Connected to server'}, room=sid)
-    else:
-        # print("Address already connected")
-        sio.emit('auth_userid', {'status': False, 'message': 'Already connected'}, room=sid)
-        # sio.disconnect(sid)
+    # Decode token
+    try:
+        decoded = jwt.decode(data['id'], secret, algorithms=['HS256'])
+
+        # print(decoded)
+    except Exception as e:
+        sio.emit('auth_userid', {'status': False, 'message': 'Invalid token'}, room=sid)
+        sio.disconnect(sid)
+        return
+    data['id'] = decoded['user']
+    if data['id'] in client_id_map:
+        # Reauth
+        del sid_map[client_id_map[sid]]
+        del pubkey_map[client_id_map[sid]]
+        del client_id_map[sid]
+
+    client_id_map[sid] = data['id']
+    sid_map[data['id']] = sid
+    # print(f"Client {data['id']} connected")
+    sio.emit('auth_userid', {'status': True, 'message': 'Connected to server'}, room=sid)
+    # Send to all
+    sio.emit('get_useronline', {'users': list_user, 'status': 'success'})
 
 
 @sio.event
@@ -78,6 +96,7 @@ def get_all_pubkey(sid):
 
 @sio.event
 def get_useronline(sid):
+    global list_user
     # print(f"Client {sid} requested online users")
     # sio.emit('get_useronline', {'users': list(client_id_map.values()), 'status': 'success'}, room=sid)
     # Get user except sender
