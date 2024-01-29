@@ -118,7 +118,7 @@ body{
 }
 .chat-area header{
   height: 10vh;
-  width: 67vw;
+  width: 73vw;
   display: flex;
   align-items: center;
   padding: 18px 30px;
@@ -146,7 +146,7 @@ body{
   background: #ecebeb;
   border-radius: 0 0 18px 0;
   /* Tempora fix VA */
-  width: 67vw;
+  width: 73vw;
 }
 
 .chat-box .text{
