@@ -66,7 +66,7 @@ def get_jwt_token():
 @app.route('/chat/', methods=['GET', 'POST'])
 def chat():
     if session.get('logged_in'):
-        return render_template('chat.html')
+        return render_template('chat.html', username=session['username'])
     else:
         # Redirect to login page
         return redirect(url_for('login'))
